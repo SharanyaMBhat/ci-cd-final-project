@@ -31,3 +31,15 @@ jobs:
       - name: Run unit tests with nose
         run: |
           nosetests -v --with-spec --spec-color --with-coverage --cover-package=app
+      - name: Install OpenShift CLI
+        run: |
+          apt-get update && apt-get install -y curl
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+          tar -xvf openshift-client-linux.tar.gz -C /usr/local/bin oc
+
+      - name: Deploy to OpenShift lab cluster
+        env:
+          APP_NAME: my-app
+          BUILD_IMAGE: my-image:latest
+        run: |
+          oc create deployment $APP_NAME --image=$BUILD_IMAGE --dry-run=client -o yaml | oc apply -f -
